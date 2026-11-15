@@ -1,0 +1,24 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$room": {
+        ".read": "auth != null && $room.matches(/^[A-HJ-NP-Z2-9]{8}$/)",
+        ".write": "auth != null && !data.exists() && newData.child('createdBy').val() === auth.uid && newData.hasChildren(['createdBy', 'players', 'state'])",
+        "createdBy": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "players": {
+          "$player": {
+            ".write": "auth != null && ($player === 'khushi' || $player === 'gaurav') && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.child('uid').val() === auth.uid && newData.child('uid').val() === auth.uid))",
+            ".validate": "newData.hasChildren(['uid','joinedAt']) && newData.child('uid').isString() && newData.child('joinedAt').isNumber()"
+          }
+        },
+        "state": {
+          ".write": "auth != null && (data.parent().child('players/khushi/uid').val() === auth.uid || data.parent().child('players/gaurav/uid').val() === auth.uid)",
+          ".validate": "newData.hasChildren(['activeWorld','scores','coins','worlds']) && newData.child('activeWorld').isString() && newData.child('activeWorld').val().length <= 24"
+        }
+      }
+    }
+  }
+}
